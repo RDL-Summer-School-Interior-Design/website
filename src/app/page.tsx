@@ -2,7 +2,6 @@ import Head from 'next/head'
 import Link from 'next/link'
 import Header from '~/app/_components/Header'
 import ImageGenerationForm from '~/app/_components/ImageGenerationForm'
-import StyleShowcase from '~/app/_components/StyleShowcase'
 
 export default function Home() {
   return (
@@ -19,7 +18,7 @@ export default function Home() {
 
       <nav className="bg-white shadow-md py-4">
         <div className="container mx-auto px-4">
-          <Link href="/styles" className="text-blue-600 hover:text-blue-800 transition-colors duration-300">
+          <Link href="/styles" className="text-blue-600 hover:text-blue-800 transition-colors duration-300" target="_blank" rel="noopener noreferrer">
             View Style Showcase
           </Link>
         </div>
