@@ -49,7 +49,7 @@ export default function StyleShowcase() {
   }
 
   const copyKeywords = async (keywords: string[]) => {
-    const keywordsText = keywords.join(', ')
+    const keywordsText = keywords.join(',')
     await copyToClipboard(keywordsText)
   }
 

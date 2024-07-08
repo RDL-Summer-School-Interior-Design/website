@@ -1,9 +1,13 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export default function ImageGenerationForm() {
   const [highlightedImage, setHighlightedImage] = useState<number | null>(null);
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [budget, setBudget] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleHotspotHover = (index: number) => {
     setHighlightedImage(index);
@@ -21,6 +25,35 @@ export default function ImageGenerationForm() {
     ];
     window.open(links[index], '_blank');
   };
+
+  const prices = ['¥1,299', '¥3,999', '¥49'];
+
+  const handleKeywordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+
+    if (value.endsWith(',')) {
+      const newKeyword = value.trim().replace(/,$/, '');
+      if (newKeyword && !keywords.includes(newKeyword)) {
+        setKeywords([...keywords, newKeyword]);
+        setInputValue('');
+      }
+    }
+  };
+
+  const removeKeyword = (keywordToRemove: string) => {
+    setKeywords(keywords.filter(keyword => keyword !== keywordToRemove));
+  };
+
+  const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBudget(e.target.value);
+  };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [keywords]);
 
   return (
     <div className="flex justify-center">
@@ -41,20 +74,52 @@ export default function ImageGenerationForm() {
               <label htmlFor="style" className="block text-sm font-medium text-gray-700 mb-1">
                 Interior Design Style
               </label>
-              <input
-                type="text"
+              <select
                 id="style"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select a style</option>
+                <option value="Modern">Modern</option>
+                <option value="Industrial">Industrial</option>
+                <option value="Scandinavian">Scandinavian</option>
+                <option value="Traditional">Traditional</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
+                Budget
+              </label>
+              <input
+                type="number"
+                id="budget"
+                value={budget}
+                onChange={handleBudgetChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your budget"
               />
             </div>
             <div className="mb-6">
               <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 mb-1">
                 Character Key Words
               </label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {keywords.map((keyword, index) => (
+                  <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                    {keyword}
+                    <button onClick={() => removeKeyword(keyword)} className="ml-1 text-blue-600 hover:text-blue-800">
+                      &times;
+                    </button>
+                  </span>
+                ))}
+              </div>
               <input
                 type="text"
                 id="keywords"
+                ref={inputRef}
+                value={inputValue}
+                onChange={handleKeywordInput}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Type a keyword and press ',' to add"
               />
             </div>
             <div className="flex space-x-2">
@@ -89,30 +154,39 @@ export default function ImageGenerationForm() {
               ></div>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <img 
-                src="/carpet.jpg" 
-                alt="Small generated image 1" 
-                className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 0 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
-                onMouseEnter={() => handleHotspotHover(0)}
-                onMouseLeave={handleHotspotLeave}
-                onClick={() => handleHotspotClick(0)}
-              />
-              <img 
-                src="/sofa.jpg" 
-                alt="Small generated image 2" 
-                className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 1 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
-                onMouseEnter={() => handleHotspotHover(1)}
-                onMouseLeave={handleHotspotLeave}
-                onClick={() => handleHotspotClick(1)}
-              />
-              <img 
-                src="/plant.jpg" 
-                alt="Small generated image 3" 
-                className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 2 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
-                onMouseEnter={() => handleHotspotHover(2)}
-                onMouseLeave={handleHotspotLeave}
-                onClick={() => handleHotspotClick(2)}
-              />
+              <div className="flex flex-col items-center">
+                <img 
+                  src="/carpet.jpg" 
+                  alt="Small generated image 1" 
+                  className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 0 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
+                  onMouseEnter={() => handleHotspotHover(0)}
+                  onMouseLeave={handleHotspotLeave}
+                  onClick={() => handleHotspotClick(0)}
+                />
+                <span className="mt-2 text-sm font-medium text-gray-700">{prices[0]}</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <img 
+                  src="/sofa.jpg" 
+                  alt="Small generated image 2" 
+                  className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 1 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
+                  onMouseEnter={() => handleHotspotHover(1)}
+                  onMouseLeave={handleHotspotLeave}
+                  onClick={() => handleHotspotClick(1)}
+                />
+                <span className="mt-2 text-sm font-medium text-gray-700">{prices[1]}</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <img 
+                  src="/plant.jpg" 
+                  alt="Small generated image 3" 
+                  className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 2 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
+                  onMouseEnter={() => handleHotspotHover(2)}
+                  onMouseLeave={handleHotspotLeave}
+                  onClick={() => handleHotspotClick(2)}
+                />
+                <span className="mt-2 text-sm font-medium text-gray-700">{prices[2]}</span>
+              </div>
             </div>
           </div>
         </div>
