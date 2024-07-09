@@ -1,13 +1,18 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 
 export default function ImageGenerationForm() {
   const [highlightedImage, setHighlightedImage] = useState<number | null>(null);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [budget, setBudget] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showImages, setShowImages] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleHotspotHover = (index: number) => {
     setHighlightedImage(index);
@@ -47,6 +52,26 @@ export default function ImageGenerationForm() {
 
   const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBudget(e.target.value);
+  };
+
+  const handleGenerateImage = () => {
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      setShowImages(true);
+    }, 2000);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setUploadedImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   useEffect(() => {
@@ -98,6 +123,19 @@ export default function ImageGenerationForm() {
                 placeholder="Enter your budget"
               />
             </div>
+            <div className="mb-4">
+              <label htmlFor="fileUpload" className="block text-sm font-medium text-gray-700 mb-1">
+                Upload Image
+              </label>
+              <input
+                type="file"
+                id="fileUpload"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept="image/*"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
             <div className="mb-6">
               <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 mb-1">
                 Character Key Words
@@ -123,72 +161,81 @@ export default function ImageGenerationForm() {
               />
             </div>
             <div className="flex space-x-2">
-              <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                Generate Image
-              </button>
-              <button className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                Partial regenerate
+              <button 
+                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onClick={handleGenerateImage}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Generating...' : 'Generate Image'}
               </button>
             </div>
           </div>
-          <div className="flex-1">
-            <div className="mb-4 relative">
-              <img src="/whole_room.jpg" alt="Large generated image" className="w-full h-64 object-cover rounded-md" />
-              <div 
-                className={`absolute bottom-2 left-1/4 transform -translate-x-1/2 w-4 h-4 bg-white rounded-full cursor-pointer transition-all duration-300 ${highlightedImage === 0 ? 'ring-4 ring-amber-200' : ''} shadow-md`}
-                onMouseEnter={() => handleHotspotHover(0)}
-                onMouseLeave={handleHotspotLeave}
-                onClick={() => handleHotspotClick(0)}
-              ></div>
-              <div 
-                className={`absolute top-1/2 left-5 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full cursor-pointer transition-all duration-300 ${highlightedImage === 2 ? 'ring-4 ring-amber-200' : ''} shadow-md`}
-                onMouseEnter={() => handleHotspotHover(2)}
-                onMouseLeave={handleHotspotLeave}
-                onClick={() => handleHotspotClick(2)}
-              ></div>
-              <div 
-                className={`absolute top-3/4 right-10 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full cursor-pointer transition-all duration-300 ${highlightedImage === 1 ? 'ring-4 ring-amber-200' : ''} shadow-md`}
-                onMouseEnter={() => handleHotspotHover(1)}
-                onMouseLeave={handleHotspotLeave}
-                onClick={() => handleHotspotClick(1)}
-              ></div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col items-center">
-                <img 
-                  src="/carpet.jpg" 
-                  alt="Small generated image 1" 
-                  className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 0 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
+          {showImages && (
+            <div className="flex-1">
+              <div className="mb-4 relative">
+                <Image src="/whole_room.jpg" alt="Large generated image" width={600} height={400} className="w-full h-64 object-cover rounded-md" />
+                <div 
+                  className={`absolute bottom-2 left-1/4 transform -translate-x-1/2 w-4 h-4 bg-white rounded-full cursor-pointer transition-all duration-300 ${highlightedImage === 0 ? 'ring-4 ring-amber-200' : ''} shadow-md`}
                   onMouseEnter={() => handleHotspotHover(0)}
                   onMouseLeave={handleHotspotLeave}
                   onClick={() => handleHotspotClick(0)}
-                />
-                <span className="mt-2 text-sm font-medium text-gray-700">{prices[0]}</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <img 
-                  src="/sofa.jpg" 
-                  alt="Small generated image 2" 
-                  className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 1 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
-                  onMouseEnter={() => handleHotspotHover(1)}
-                  onMouseLeave={handleHotspotLeave}
-                  onClick={() => handleHotspotClick(1)}
-                />
-                <span className="mt-2 text-sm font-medium text-gray-700">{prices[1]}</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <img 
-                  src="/plant.jpg" 
-                  alt="Small generated image 3" 
-                  className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 2 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
+                ></div>
+                <div 
+                  className={`absolute top-1/2 left-5 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full cursor-pointer transition-all duration-300 ${highlightedImage === 2 ? 'ring-4 ring-amber-200' : ''} shadow-md`}
                   onMouseEnter={() => handleHotspotHover(2)}
                   onMouseLeave={handleHotspotLeave}
                   onClick={() => handleHotspotClick(2)}
-                />
-                <span className="mt-2 text-sm font-medium text-gray-700">{prices[2]}</span>
+                ></div>
+                <div 
+                  className={`absolute top-3/4 right-10 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full cursor-pointer transition-all duration-300 ${highlightedImage === 1 ? 'ring-4 ring-amber-200' : ''} shadow-md`}
+                  onMouseEnter={() => handleHotspotHover(1)}
+                  onMouseLeave={handleHotspotLeave}
+                  onClick={() => handleHotspotClick(1)}
+                ></div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="flex flex-col items-center">
+                  <Image 
+                    src="/carpet.jpg" 
+                    alt="Small generated image 1" 
+                    width={200}
+                    height={150}
+                    className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 0 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
+                    onMouseEnter={() => handleHotspotHover(0)}
+                    onMouseLeave={handleHotspotLeave}
+                    onClick={() => handleHotspotClick(0)}
+                  />
+                  <span className="mt-2 text-sm font-medium text-gray-700">{prices[0]}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <Image 
+                    src="/sofa.jpg" 
+                    alt="Small generated image 2" 
+                    width={200}
+                    height={150}
+                    className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 1 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
+                    onMouseEnter={() => handleHotspotHover(1)}
+                    onMouseLeave={handleHotspotLeave}
+                    onClick={() => handleHotspotClick(1)}
+                  />
+                  <span className="mt-2 text-sm font-medium text-gray-700">{prices[1]}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <Image 
+                    src="/plant.jpg" 
+                    alt="Small generated image 3" 
+                    width={200}
+                    height={150}
+                    className={`w-full h-24 object-cover rounded-md transition-all duration-300 ${highlightedImage === 2 ? 'ring-4 ring-amber-200' : ''} cursor-pointer`} 
+                    onMouseEnter={() => handleHotspotHover(2)}
+                    onMouseLeave={handleHotspotLeave}
+                    onClick={() => handleHotspotClick(2)}
+                  />
+                  <span className="mt-2 text-sm font-medium text-gray-700">{prices[2]}</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
