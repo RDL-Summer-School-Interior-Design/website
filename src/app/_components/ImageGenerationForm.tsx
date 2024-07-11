@@ -118,7 +118,7 @@ export default function ImageGenerationForm() {
         .then(blob => {
           const file = new File([blob], 'basic.jpg', { type: 'image/jpeg' });
           dataTransfer.items.add(file);
-          fileInputRef.current.files = dataTransfer.files;
+          fileInputRef.current!.files = dataTransfer.files;
         });
     }
   };
