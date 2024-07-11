@@ -15,14 +15,6 @@ export default function Home() {
         <Header />
         <ImageGenerationForm />
       </main>
-
-      <nav className="bg-white shadow-md py-4">
-        <div className="container mx-auto px-4">
-          <Link href="/styles" className="text-blue-600 hover:text-blue-800 transition-colors duration-300" target="_blank" rel="noopener noreferrer">
-            View Style Showcase
-          </Link>
-        </div>
-      </nav>
     </div>
   )
 }

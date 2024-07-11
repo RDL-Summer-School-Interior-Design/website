@@ -11,6 +11,8 @@ export default function ImageGenerationForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showImages, setShowImages] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [description, setDescription] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,6 +82,47 @@ export default function ImageGenerationForm() {
     }
   }, [keywords]);
 
+  const styleShowcases = [
+    {
+      name: "Modern Minimalist",
+      description: "Clean lines, neutral colors, and minimalist decor",
+      keywords: ["modern", "minimalist", "clean", "neutral"],
+      image: "/modern.jpg"
+    },
+    {
+      name: "Scandinavian Cozy",
+      description: "Light woods, hygge elements, and functional design",
+      keywords: ["scandinavian", "cozy", "hygge", "functional"],
+      image: "/scandinavian.jpg"
+    },
+    {
+      name: "Industrial Chic",
+      description: "Raw materials, exposed elements, and urban aesthetics",
+      keywords: ["industrial", "chic", "urban", "raw"],
+      image: "/industrial.jpg"
+    }
+  ];
+
+  const handleStyleSelect = async (style: typeof styleShowcases[0]) => {
+    setDescription(style.description);
+    setKeywords(style.keywords);
+    setSelectedStyle(style.name);
+    setBudget('6000');
+    setUploadedImage('/basic.jpg');
+    
+    // Set the file input value to basic.jpg
+    if (fileInputRef.current) {
+      const dataTransfer = new DataTransfer();
+      await fetch('/basic.jpg')
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], 'basic.jpg', { type: 'image/jpeg' });
+          dataTransfer.items.add(file);
+          fileInputRef.current.files = dataTransfer.files;
+        });
+    }
+  };
+
   return (
     <div className="flex justify-center">
       <div className="max-w-4xl bg-white rounded-lg shadow-md p-6 mb-8">
@@ -92,6 +135,8 @@ export default function ImageGenerationForm() {
               <input
                 type="text"
                 id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -101,13 +146,14 @@ export default function ImageGenerationForm() {
               </label>
               <select
                 id="style"
+                value={selectedStyle}
+                onChange={(e) => setSelectedStyle(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a style</option>
-                <option value="Modern">Modern</option>
-                <option value="Industrial">Industrial</option>
-                <option value="Scandinavian">Scandinavian</option>
-                <option value="Traditional">Traditional</option>
+                {styleShowcases.map((style, index) => (
+                  <option key={index} value={style.name}>{style.name}</option>
+                ))}
               </select>
             </div>
             <div className="mb-4">
@@ -236,6 +282,24 @@ export default function ImageGenerationForm() {
               </div>
             </div>
           )}
+        </div>
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Style Showcases</h2>
+          <div className="grid grid-cols-3 gap-4">
+            {styleShowcases.map((style, index) => (
+              <div key={index} className="border rounded-lg p-4">
+                <Image src={style.image} alt={style.name} width={200} height={150} className="w-full h-32 object-cover rounded-md mb-2" />
+                <h3 className="font-semibold mb-1">{style.name}</h3>
+                <p className="text-sm text-gray-600 mb-2">{style.description}</p>
+                <button
+                  onClick={() => handleStyleSelect(style)}
+                  className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 transition-colors"
+                >
+                  Use This Style
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
